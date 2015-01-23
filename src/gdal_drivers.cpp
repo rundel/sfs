@@ -5,7 +5,7 @@
 #include <gdal.h>
 
 // [[Rcpp::export]]
-void register_gdal_all()
+void gdal_register_all()
 {
     GDALAllRegister();
 }
