@@ -18,10 +18,7 @@ is_cw = function(xy)
 }
 
 setClass("sfs_polygon",
-    representation(coords = "matrix",
-                   holes = "list",
-                   data = "data.frame",
-                   crs = "CRS"),
+    representation(coords = "matrix", holes = "list", crs = "CRS"),
     validity = function(object)
     {
         # Validate coords Ring
@@ -67,17 +64,13 @@ setClass("sfs_polygon",
                 return("all holes must be counter clockwise")
         }
 
-        # Validate Data
-        if (!(nrow(object@data) %in% 0:1))
-            return("data may contain at most one row")
-
         validObject(object@crs)
 
         return(TRUE)
     }
 )
 
-polygon = function(coords, holes = list(), data = data.frame(), crs = CRS(""))
+polygon = function(coords, holes = list(), crs = CRS(""))
 {
     # coords ring should be clockwise
     if (!is_cw(coords))
@@ -92,7 +85,5 @@ polygon = function(coords, holes = list(), data = data.frame(), crs = CRS(""))
             })
 
 
-    new("sfs_polygon",
-        coords = coords, holes = holes,
-        data = data, crs = crs)
+    new("sfs_polygon", coords = coords, holes = holes, crs = crs)
 }

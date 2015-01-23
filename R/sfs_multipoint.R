@@ -1,7 +1,5 @@
 setClass("sfs_multipoint",
-    representation(geoms = "list",
-                   data = "data.frame",
-                   crs = "CRS"),
+    representation(geoms = "list", crs = "CRS"),
     validity = function(object)
     {
         # FIXME
@@ -16,10 +14,9 @@ setClass("sfs_multipoint",
     }
 )
 
-multipoint = function(geoms, data = data.frame(), crs = CRS(""))
+multipoint = function(geoms, crs = CRS(""))
 {
     # FIXME
 
-    new("sfs_multipoint",
-        geoms = geoms, data = data, crs = crs)
+    new("sfs_multipoint", geoms = geoms, crs = crs)
 }

@@ -1,13 +1,8 @@
 setClass("sfs_geometrycollection",
-    representation(geoms = "list",
-                   data = "data.frame",
-                   crs = "CRS"),
+    representation(geoms = "list", crs = "CRS"),
     validity = function(object)
     {
         # FIXME
-
-        # Validate Sub-Geometries
-        lapply(object@geoms, function(x) validObject(x))
 
         # Validate CRS
         validObject(object@crs)
@@ -16,10 +11,9 @@ setClass("sfs_geometrycollection",
     }
 )
 
-geometry_collection = function(geoms, data = data.frame(), crs = CRS(""))
+geometry_collection = function(geoms, crs = CRS(""))
 {
     # FIXME
 
-    new("sfs_geometrycollection",
-        geoms = geoms, data = data, crs = crs)
+    new("sfs_geometrycollection", geoms = geoms, crs = crs)
 }

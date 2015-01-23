@@ -1,15 +1,10 @@
 setClass("sfs_point",
-    representation(coords = "matrix",
-                   data = "data.frame",
-                   crs = "CRS"),
+    representation(coords = "matrix", crs = "CRS"),
     validity = function(object)
     {
         # FIXME
 
-        # Validate Data
-        if (!(nrow(object@data) %in% 0:1))
-            return("data may contain at most one row")
-
+        # Validate CRS
         validObject(object@crs)
 
         return(TRUE)
