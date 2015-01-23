@@ -10,11 +10,6 @@
 /// Util
 ///
 
-inline void assert(bool test, const std::string& error = "Assertion Failed.")
-{
-    if(!test) Rcpp::stop(error);
-}
-
 Rcpp::NumericMatrix get_ogr_points(OGRGeometryH geom)
 {
     assert(OGR_G_GetCoordinateDimension(geom) == 2, "Only 2d geometries allowed");
