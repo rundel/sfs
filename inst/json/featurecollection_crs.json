@@ -1,0 +1,49 @@
+{
+    "type": "FeatureCollection",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "EPSG:4326"
+        }
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            25.0974512743628,
+                            86.8965517241379
+                        ],
+                        [
+                            -81.2293853073463,
+                            86.8965517241379
+                        ],
+                        [
+                            -81.2293853073463,
+                            15.1124437781109
+                        ],
+                        [
+                            25.0974512743628,
+                            15.1124437781109
+                        ],
+                        [
+                            25.0974512743628,
+                            86.8965517241379
+                        ]
+                    ]
+                ]
+            },
+            "properties": {
+                "Description": "Polygon",
+                "Item ID": 1,
+                "Item class": "Polygon",
+                "Origin X": -3124289.15689667,
+                "Origin Y": 5677794.71782184,
+                "Origin Z": 0
+            }
+        }
+    ]
+}
