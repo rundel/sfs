@@ -2,12 +2,14 @@ library(Rcpp)
 
 registerPlugin("gdal",
                 function() {
-                    list(env = list(PKG_LIBS=paste0("-lgdal"),
-                                    PKG_CXXFLAGS=paste0("-I",path.expand(file.path(getwd(),"src")))
+                    list(env = list(PKG_LIBS     = system("gdal-config --libs", intern=TRUE),
+                                    PKG_CXXFLAGS = paste(system("gdal-config --cflags", intern=TRUE),
+                                                         paste0("-I",path.expand(file.path(getwd(),"src"))))
                                    )
                     )
                 }
               )
+
 sourceCpp("src/gdal_drivers.cpp", rebuild=TRUE)
 sourceCpp("src/ogr_util.cpp", rebuild=TRUE)
 sourceCpp("src/ogr_to_R.cpp", rebuild=TRUE)
