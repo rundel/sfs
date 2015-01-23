@@ -3,7 +3,7 @@
 #include <Rcpp.h>
 #include <ogr_api.h>
 
-
+#include "ogr_to_R.hpp"
 
 
 ///
@@ -32,11 +32,6 @@ Rcpp::NumericMatrix get_ogr_points(OGRGeometryH geom)
     return(coords);
 }
 
-
-////
-//// CRS
-////
-
 Rcpp::S4 CRS(std::string s = "")
 {
     Rcpp::S4 crs("CRS");
@@ -44,6 +39,43 @@ Rcpp::S4 CRS(std::string s = "")
     crs.slot("projargs") = projargs;
 
     return(crs);
+}
+
+////
+//// General Translate
+////
+
+Rcpp::S4 ogr_to_sfs(OGRGeometryH geom)
+{
+    Rcpp::S4 res;
+    switch(OGR_G_GetGeometryType(geom))
+    {
+        case wkbPoint:
+            res = point_ogr_to_sfs(geom);
+            break;
+        case wkbLineString:
+            res = linestring_ogr_to_sfs(geom);
+            break;
+        case wkbPolygon:
+            res = polygon_ogr_to_sfs(geom);
+            break;
+        case wkbMultiPoint:
+            res = multipoint_ogr_to_sfs(geom);
+            break;
+        case wkbMultiLineString:
+            res = multilinestring_ogr_to_sfs(geom);
+            break;
+        case wkbMultiPolygon:
+            res = multipolygon_ogr_to_sfs(geom);
+            break;
+        case wkbGeometryCollection:
+            res = geometrycollection_ogr_to_sfs(geom);
+            break;
+        default:
+            Rcpp::stop("Unknown subgeometry type.");
+    }
+
+    return(res);
 }
 
 
@@ -61,7 +93,6 @@ Rcpp::S4 point_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_point");
     sfs.slot("coords") = coords;
-    sfs.slot("data")   = Rcpp::DataFrame();
     sfs.slot("crs")    = CRS();
 
     return(sfs);
@@ -98,7 +129,6 @@ Rcpp::S4 multipoint_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_multipoint");
     sfs.slot("geoms") = geoms;
-    sfs.slot("data")  = Rcpp::DataFrame();
     sfs.slot("crs")   = CRS();
 
     return(sfs);
@@ -132,7 +162,6 @@ Rcpp::S4 linestring_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_linestring");
     sfs.slot("coords") = coords;
-    sfs.slot("data")   = Rcpp::DataFrame();
     sfs.slot("crs")    = CRS();
 
     return(sfs);
@@ -169,7 +198,6 @@ Rcpp::S4 multilinestring_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_multilinestring");
     sfs.slot("geoms") = geoms;
-    sfs.slot("data")  = Rcpp::DataFrame();
     sfs.slot("crs")   = CRS();
 
     return(sfs);
@@ -219,7 +247,6 @@ Rcpp::S4 polygon_ogr_to_sfs(OGRGeometryH geom)
     Rcpp::S4 sfs("sfs_polygon");
     sfs.slot("coords") = coords;
     sfs.slot("holes")  = holes;
-    sfs.slot("data")   = Rcpp::DataFrame();
     sfs.slot("crs")    = CRS();
 
     return(sfs);
@@ -260,7 +287,6 @@ Rcpp::S4 multipolygon_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_multipolygon");
     sfs.slot("geoms") = geoms;
-    sfs.slot("data")  = Rcpp::DataFrame();
     sfs.slot("crs")   = CRS();
 
     return(sfs);
@@ -296,39 +322,11 @@ Rcpp::S4 geometrycollection_ogr_to_sfs(OGRGeometryH geom)
     Rcpp::List geoms(OGR_G_GetGeometryCount(geom));
     for(int i=0; i < OGR_G_GetGeometryCount(geom); ++i)
     {
-        OGRGeometryH subgeom = OGR_G_GetGeometryRef(geom, i);
-        
-        switch(OGR_G_GetGeometryType(subgeom))
-        {
-            case wkbPoint:
-                geoms[i] = point_ogr_to_sfs(subgeom);
-                break;
-            case wkbLineString:
-                geoms[i] = linestring_ogr_to_sfs(subgeom);
-                break;
-            case wkbPolygon:
-                geoms[i] = polygon_ogr_to_sfs(subgeom);
-                break;
-            case wkbMultiPoint:
-                geoms[i] = multipoint_ogr_to_sfs(subgeom);
-                break;
-            case wkbMultiLineString:
-                geoms[i] = multilinestring_ogr_to_sfs(subgeom);
-                break;
-            case wkbMultiPolygon:
-                geoms[i] = multipolygon_ogr_to_sfs(subgeom);
-                break;
-            case wkbGeometryCollection:
-                geoms[i] = geometrycollection_ogr_to_sfs(subgeom);
-                break;
-            default:
-                Rcpp::stop("Unknown subgeometry type.");
-        }
+        geoms[i] = ogr_to_sfs( OGR_G_GetGeometryRef(geom, i) );
     }
 
     Rcpp::S4 sfs("sfs_geometrycollection");
     sfs.slot("geoms") = geoms;
-    sfs.slot("data")  = Rcpp::DataFrame();
     sfs.slot("crs")   = CRS();
 
     return(sfs);
@@ -349,4 +347,3 @@ Rcpp::S4 test_geometrycollection()
 
     return(sfs);
 }
-
