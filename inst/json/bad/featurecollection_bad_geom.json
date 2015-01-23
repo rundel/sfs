@@ -1,0 +1,12 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "type": "BROKEN"
+            },
+            "properties": {},
+            "type": "Feature"
+        }
+    ],
+    "type": "FeatureCollection"
+}
