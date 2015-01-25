@@ -1,22 +1,3 @@
-polygon_signed_area = function(xy)
-{
-    x = xy[,1]
-    y = xy[,2]
-    n = nrow(xy)
-
-    stopifnot(x[1] == x[n] & y[1] == y[n])
-
-    # Based on area formula given by
-    # http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
-
-    return( sum(x[1:(n-1)]*y[2:n]-x[2:n]*y[1:(n-1)])/2 )
-}
-
-is_cw = function(xy)
-{
-    return(polygon_signed_area(xy) < 0)
-}
-
 setClass("sfs_polygon",
     representation(coords = "matrix", holes = "list", crs = "CRS"),
     validity = function(object)

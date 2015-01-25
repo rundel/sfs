@@ -4,11 +4,45 @@
 #include <ogr_api.h>
 
 #include "ogr_to_R.hpp"
-#include "ogr_raii.hpp"
+#include "ogr_util.hpp"
 
 ///
 /// Util
 ///
+
+// [[Rcpp::export]]
+double polygon_signed_area(Rcpp::NumericMatrix m)
+{
+    // Based on area formula given by
+    // http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
+
+    double area = 0;
+    for(int i=0; i < m.nrow()-1; ++i)
+    {
+        area += m(i,0)*m(i+1,1) -  m(i+1,0)*m(i,1);
+    }
+
+    return( area / 2. );
+}
+
+// [[Rcpp::export]]
+bool is_cw(Rcpp::NumericMatrix m)
+{
+    return(polygon_signed_area(m) < 0);
+}
+
+Rcpp::NumericMatrix rev_mat(Rcpp::NumericMatrix m)
+{
+    Rcpp::NumericMatrix n(m.nrow(),m.ncol());
+
+    for(int i=0; i < m.nrow(); ++i)
+    {
+        n(m.nrow()-1-i, 0) = m(i, 0);
+        n(m.nrow()-1-i, 1) = m(i, 1);
+    }
+
+    return(n);
+}
 
 Rcpp::NumericMatrix get_ogr_points(OGRGeometryH geom)
 {
@@ -25,15 +59,6 @@ Rcpp::NumericMatrix get_ogr_points(OGRGeometryH geom)
     }
 
     return(coords);
-}
-
-Rcpp::S4 CRS(std::string s = "")
-{
-    Rcpp::S4 crs("CRS");
-    Rcpp::CharacterVector projargs = s.empty() ? NA_STRING : Rcpp::wrap(s);
-    crs.slot("projargs") = projargs;
-
-    return(crs);
 }
 
 ////
@@ -88,7 +113,7 @@ Rcpp::S4 point_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_point");
     sfs.slot("coords") = coords;
-    sfs.slot("crs")    = CRS();
+    sfs.slot("crs")    = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -110,7 +135,7 @@ Rcpp::S4 multipoint_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_multipoint");
     sfs.slot("geoms") = geoms;
-    sfs.slot("crs")   = CRS();
+    sfs.slot("crs")   = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -129,7 +154,7 @@ Rcpp::S4 linestring_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_linestring");
     sfs.slot("coords") = coords;
-    sfs.slot("crs")    = CRS();
+    sfs.slot("crs")    = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -151,7 +176,7 @@ Rcpp::S4 multilinestring_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_multilinestring");
     sfs.slot("geoms") = geoms;
-    sfs.slot("crs")   = CRS();
+    sfs.slot("crs")   = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -166,12 +191,15 @@ Rcpp::S4 polygon_ogr_to_sfs(OGRGeometryH geom)
     assert(OGR_G_GetGeometryType(geom) == wkbPolygon, "Geometry must be a Polygon");
     assert(OGR_G_GetGeometryCount(geom) >= 1, "There must be at least 1 subgeometry");
 
+    OGR_G_CloseRings(geom);
 
     OGRGeometryH shell = OGR_G_GetGeometryRef(geom, 0);
     assert(OGR_G_GetGeometryType(shell) == wkbLineString, "Polygon shell should be a linestring");
 
     Rcpp::NumericMatrix coords = get_ogr_points(shell);
 
+    if(!is_cw(coords))
+        coords = rev_mat(coords);
 
     Rcpp::List holes(OGR_G_GetGeometryCount(geom)-1);
     for(int i=1; i < OGR_G_GetGeometryCount(geom); ++i)
@@ -179,14 +207,19 @@ Rcpp::S4 polygon_ogr_to_sfs(OGRGeometryH geom)
         OGRGeometryH hole = OGR_G_GetGeometryRef(geom, i);
         assert(OGR_G_GetGeometryType(hole) == wkbLineString, "Polygon holes should be a linestrings");
 
-        holes[i-1] = get_ogr_points(hole);
+        Rcpp::NumericMatrix hcrd = get_ogr_points(hole);
+
+        if(is_cw(hcrd))
+            hcrd = rev_mat(hcrd);
+
+        holes[i-1] = hcrd;
     }
 
 
     Rcpp::S4 sfs("sfs_polygon");
     sfs.slot("coords") = coords;
     sfs.slot("holes")  = holes;
-    sfs.slot("crs")    = CRS();
+    sfs.slot("crs")    = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -203,12 +236,12 @@ Rcpp::S4 multipolygon_ogr_to_sfs(OGRGeometryH geom)
     Rcpp::List geoms(OGR_G_GetGeometryCount(geom));
     for(int i=0; i < OGR_G_GetGeometryCount(geom); ++i)
     {
-        geoms[i] = point_ogr_to_sfs( OGR_G_GetGeometryRef(geom, i) );
+        geoms[i] = polygon_ogr_to_sfs( OGR_G_GetGeometryRef(geom, i) );
     }
 
     Rcpp::S4 sfs("sfs_multipolygon");
     sfs.slot("geoms") = geoms;
-    sfs.slot("crs")   = CRS();
+    sfs.slot("crs")   = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }
@@ -230,7 +263,7 @@ Rcpp::S4 geometrycollection_ogr_to_sfs(OGRGeometryH geom)
 
     Rcpp::S4 sfs("sfs_geometrycollection");
     sfs.slot("geoms") = geoms;
-    sfs.slot("crs")   = CRS();
+    sfs.slot("crs")   = get_crs(OGR_G_GetSpatialReference(geom));
 
     return(sfs);
 }

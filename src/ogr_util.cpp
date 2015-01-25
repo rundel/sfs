@@ -4,7 +4,38 @@
 #include <ogr_api.h>
 #include <ogr_srs_api.h>
 
-#include "ogr_raii.hpp"
+#include "ogr_util.hpp"
+
+Rcpp::S4 get_crs(OGRSpatialReferenceH sr)
+{
+    Rcpp::CharacterVector projargs(1);
+
+    if (sr != NULL)
+    {
+        char* s = NULL;
+        OSRExportToProj4(sr, &s);
+
+        if(s != NULL)
+        {
+            projargs[0] = std::string(s);
+            OGRFree(s);
+        }
+        else
+        {
+            projargs[0] = NA_STRING;
+        }
+    }
+    else
+    {
+        projargs[0] = NA_STRING;
+    }
+
+    Rcpp::S4 crs("CRS");
+    crs.slot("projargs") = projargs;
+
+    return(crs);
+}
+
 
 // [[Rcpp::export]]
 void ogr_register_all()
@@ -45,7 +76,7 @@ Rcpp::DataFrame ogr_drivers()
 // [[Rcpp::export]]
 void dump_ogr(std::string file = "test.geojson")
 {
-    OGRSFDriverH *driver;
+    OGRSFDriverH *driver = NULL;
     DataSource data( OGROpen(file.c_str(), false, driver) );
 
     if(data.get() == NULL) Rcpp::stop("Unable to open file.");
@@ -107,7 +138,7 @@ void process_geom(std::vector<int> idx, OGRGeometryH geom)
 // [[Rcpp::export]]
 void dump2_ogr(std::string file = "test.geojson")
 {
-    OGRSFDriverH *driver;
+    OGRSFDriverH *driver = NULL;
     DataSource data( OGROpen(file.c_str(), false, driver) );
 
     if(data.get() == NULL) Rcpp::stop("Unable to open file.");
