@@ -68,3 +68,24 @@ polygon = function(coords, holes = list(), crs = CRS(""))
 
     new("sfs_polygon", coords = coords, holes = holes, crs = crs)
 }
+
+
+
+plot_sfs_polygon = function(x, add=FALSE, col="black", xlab="", ylab="", ...)
+{
+    bound = bbox(x)
+
+    if (!add)
+        plot(x=range(bound[,1]), y=range(bound[,2]), xlab=xlab,ylab=ylab, type="n", ...)
+
+    pts = do.call(rbind, c(list(x@coords), lapply(x@holes, function(x) rbind(NA,x))))
+    polypath(pts, col=col)
+}
+
+setMethod(
+    "plot",
+    signature(x = "sfs_polygon", y = "missing"),
+    function(x, y, ...) 
+        plot_sfs_polygon(x, ...)
+)
+

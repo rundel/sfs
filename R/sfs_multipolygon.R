@@ -30,7 +30,7 @@ validate_multigeom_crs = function(crs, sub_crs)
         if (length(sub_crs) == 1)
             crs = CRS(sub_crs)
     } else {
-        if (length(sub_crs) == 1 & crs@projargs != polys_CRS) 
+        if (length(sub_crs) == 1 & crs@projargs != polys_CRS)
             stop("Given CRS string does not match subgeometries' CRS strings")
     }
 
@@ -60,3 +60,25 @@ multipolygon = function(polygons, crs = CRS(""), show_warnings = TRUE)
 
     new("sfs_multipolygon", geoms = polygons, crs = crs)
 }
+
+plot_sfs_multipolygon = function(x, add=FALSE, xlab="", ylab="", ...)
+{
+    bound = bbox(x)
+
+    if (!add)
+        plot(x=range(bound[,1]), y=range(bound[,2]), xlab=xlab, ylab=ylab, type="n", ...)
+
+    for(g in x@geoms)
+    {
+        plot(g, add=TRUE, ...)
+    }
+}
+
+setMethod(
+    "plot",
+    signature(x = "sfs_multipolygon", y = "missing"),
+    function(x, y, ...)
+        plot_sfs_multipolygon(x, ...)
+)
+
+
