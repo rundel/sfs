@@ -1,7 +1,6 @@
 // [[Rcpp::plugins(gdal)]]
 
 #include <Rcpp.h>
-
 #include <gdal.h>
 
 // [[Rcpp::export]]
