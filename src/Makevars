@@ -1,0 +1,2 @@
+PKG_CPPFLAGS = -Isrc/ `gdal-config --cflags` -Wno-c++11-long-long
+PKG_LIBS     = `gdal-config --libs`
