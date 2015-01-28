@@ -6,7 +6,7 @@ Rcpp::S4 test_point()
 
     assert(OGR_G_CreateFromWkt(&wkt, NULL, &geom) == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = point_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = point_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -20,7 +20,7 @@ Rcpp::S4 test_multipoint()
 
     assert(OGR_G_CreateFromWkt(&wkt, NULL, &geom) == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = multipoint_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = multipoint_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -34,7 +34,7 @@ Rcpp::S4 test_linestring()
 
     assert(OGR_G_CreateFromWkt(&wkt, NULL, &geom) == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = linestring_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = linestring_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -48,7 +48,7 @@ Rcpp::S4 test_multilinestring()
 
     assert(OGR_G_CreateFromWkt(&wkt, NULL, &geom) == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = multilinestring_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = multilinestring_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -67,7 +67,7 @@ Rcpp::S4 test_polygon(bool hole = false)
 
     assert(err == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = polygon_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = polygon_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -86,7 +86,7 @@ Rcpp::S4 test_multipolygon(bool hole = false)
 
     assert(err == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = multipolygon_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = multipolygon_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);
@@ -102,7 +102,7 @@ Rcpp::S4 test_geometrycollection()
 
     assert(err == OGRERR_NONE && geom != NULL);
 
-    Rcpp::S4 sfs = geometrycollection_ogr_to_sfs(geom);
+    Rcpp::S4 sfs = geometrycollection_from_ogr(geom);
     OGR_G_DestroyGeometry(geom);
 
     return(sfs);

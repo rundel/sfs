@@ -6,6 +6,42 @@
 
 #include "ogr_util.hpp"
 
+// [[Rcpp::export]]
+double ring_signed_area(Rcpp::NumericMatrix m)
+{
+    // Based on area formula given by
+    // http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
+
+    assert(m(0,0) == m(m.nrows()-1,0) && m(0,1) == m(m.nrows()-1,1), "Ring must be closed.");
+
+    double area = 0;
+    for(int i=0; i < m.nrow()-1; ++i)
+    {
+        area += m(i,0)*m(i+1,1) -  m(i+1,0)*m(i,1);
+    }
+
+    return( area / 2. );
+}
+
+// [[Rcpp::export]]
+bool is_cw(Rcpp::NumericMatrix m)
+{
+    return(ring_signed_area(m) < 0);
+}
+
+Rcpp::NumericMatrix rev_mat(Rcpp::NumericMatrix m)
+{
+    Rcpp::NumericMatrix n(m.nrow(),m.ncol());
+
+    for(int i=0; i < m.nrow(); ++i)
+    {
+        n(m.nrow()-1-i, 0) = m(i, 0);
+        n(m.nrow()-1-i, 1) = m(i, 1);
+    }
+
+    return(n);
+}
+
 Rcpp::S4 get_crs(OGRSpatialReferenceH sr)
 {
     Rcpp::CharacterVector projargs(1);

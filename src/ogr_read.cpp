@@ -4,7 +4,7 @@
 #include <ogr_api.h>
 #include <ogr_srs_api.h>
 
-#include "ogr_to_R.hpp"
+#include "ogr_from.hpp"
 #include "ogr_util.hpp"
 
 
@@ -145,7 +145,7 @@ Rcpp::S4 read_ogr(std::string file, int layer_index = 0)
                 data = init_data(feat.get(), n_feat);
 
             fill_data(data, feat.get(), j);
-            geoms[j] = ogr_to_sfs( OGR_F_GetGeometryRef(feat.get()) );
+            geoms[j] = from_ogr( OGR_F_GetGeometryRef(feat.get()) );
         }
 
         if (n_feat == 1 && data.length() == 0)
