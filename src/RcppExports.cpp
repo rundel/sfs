@@ -46,15 +46,15 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// polygon_signed_area
-double polygon_signed_area(Rcpp::NumericMatrix m);
-RcppExport SEXP sfs_polygon_signed_area(SEXP mSEXP) {
+// ring_signed_area
+double ring_signed_area(Rcpp::NumericMatrix m);
+RcppExport SEXP sfs_ring_signed_area(SEXP mSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type m(mSEXP );
-        double __result = polygon_signed_area(m);
+        double __result = ring_signed_area(m);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

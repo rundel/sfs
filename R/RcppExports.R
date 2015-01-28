@@ -13,8 +13,8 @@ read_ogr <- function(file, layer_index = 0L) {
     .Call('sfs_read_ogr', PACKAGE = 'sfs', file, layer_index)
 }
 
-polygon_signed_area <- function(m) {
-    .Call('sfs_polygon_signed_area', PACKAGE = 'sfs', m)
+ring_signed_area <- function(m) {
+    .Call('sfs_ring_signed_area', PACKAGE = 'sfs', m)
 }
 
 is_cw <- function(m) {
