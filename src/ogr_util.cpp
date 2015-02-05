@@ -12,7 +12,7 @@ double ring_signed_area(Rcpp::NumericMatrix m)
     // Based on area formula given by
     // http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 
-    assert(m(0,0) == m(m.nrows()-1,0) && m(0,1) == m(m.nrows()-1,1), "Ring must be closed.");
+    assert(m(0,0) == m(m.nrow()-1,0) && m(0,1) == m(m.nrow()-1,1), "Ring must be closed.");
 
     double area = 0;
     for(int i=0; i < m.nrow()-1; ++i)

@@ -4,6 +4,10 @@
 #include <Rcpp.h>
 #include <ogr_api.h>
 
+double ring_signed_area(Rcpp::NumericMatrix m);
+bool is_cw(Rcpp::NumericMatrix m);
+Rcpp::NumericMatrix rev_mat(Rcpp::NumericMatrix m);
+
 Rcpp::S4 get_crs(OGRSpatialReferenceH sr);
 
 inline void assert(bool test, const std::string& error = "Assertion Failed.")
